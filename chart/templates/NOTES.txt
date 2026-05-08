@@ -1,0 +1,27 @@
+1. Phaeton is deploying. Check rollout status with:
+
+   kubectl rollout status deployment/{{ include "phaeton.fullname" . }} -n {{ .Release.Namespace }}
+
+2. Get the application URL:
+
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if eq .Values.service.type "NodePort" }}
+   export NODE_PORT=$(kubectl get svc {{ include "phaeton.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}")
+   export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
+   echo "http://$NODE_IP:$NODE_PORT"
+{{- else }}
+   kubectl port-forward svc/{{ include "phaeton.fullname" . }} 4000:4000 -n {{ .Release.Namespace }}
+   Then open http://localhost:4000
+{{- end }}
+
+3. Run database migrations (first deploy or after upgrades):
+
+   kubectl exec -n {{ .Release.Namespace }} \
+     deploy/{{ include "phaeton.fullname" . }} -- \
+     bin/phaeton eval "Phaeton.Release.migrate()"
+
+NOTE: SQLite does not support concurrent writers.
+      Keep replicaCount at 1 and use the Recreate rollout strategy (default).

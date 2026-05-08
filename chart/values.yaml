@@ -1,0 +1,108 @@
+# Number of replicas.
+# SQLite does not support concurrent writers — keep this at 1.
+replicaCount: 1
+
+image:
+  repository: docker.io/nicokahlert/phaeton
+  pullPolicy: IfNotPresent
+  # Overrides the image tag. Defaults to Chart.appVersion.
+  tag: ""
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  name: ""
+
+# Environment configuration
+env:
+  # Publicly accessible hostname (no scheme, no port).
+  phxHost: "example.com"
+
+  # SQLite connection pool size.
+  poolSize: "5"
+
+  # DNS cluster query for distributed Erlang (optional, leave empty for standalone).
+  dnsClusterQuery: ""
+
+# Secret configuration.
+# Either provide secretKeyBase here (a Kubernetes Secret will be created)
+# or reference an existing Secret with existingSecret.
+#
+# Generate a value with: mix phx.gen.secret
+secret:
+  # Name of an existing Secret that contains SECRET_KEY_BASE.
+  # If set, secretKeyBase below is ignored.
+  existingSecret: ""
+  # Key inside the existing secret that holds SECRET_KEY_BASE.
+  existingSecretKey: "secret-key-base"
+  # Set this when not using existingSecret.
+  secretKeyBase: ""
+
+service:
+  type: ClusterIP
+  port: 4000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: phaeton.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # - secretName: phaeton-tls
+  #   hosts:
+  #     - phaeton.example.com
+
+persistence:
+  enabled: true
+  # Use an existing PVC instead of creating one.
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 2Gi
+  # Mount path inside the container.
+  mountPath: /data
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  readOnlyRootFilesystem: false

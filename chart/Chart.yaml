@@ -1,0 +1,13 @@
+apiVersion: v2
+name: phaeton
+description: NGSI-LD Broker built with Elixir and Phoenix
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - ngsi-ld
+  - iot
+  - context-broker
+  - elixir
+  - phoenix
+home: https://github.com/nicokahlert/phaeton

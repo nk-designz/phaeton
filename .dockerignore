@@ -1,0 +1,25 @@
+# Build artifacts
+_build/
+deps/
+
+# Version control
+.git/
+.gitignore
+
+# Dev tooling
+.elixir_ls/
+.lexical/
+
+# Test files
+test/
+
+# Compiled assets (rebuilt inside Docker)
+priv/static/
+
+# Local dev DB files
+*.db
+*.db-wal
+*.db-shm
+
+# Misc
+*.md
