@@ -4,7 +4,7 @@ FROM docker.io/library/elixir:1.15-otp-26-alpine AS builder
 # build-base: C compiler for NIFs (exqlite bundles sqlite3 as a NIF)
 # git: required by some Mix deps fetched from GitHub (heroicons)
 # curl: used by esbuild/tailwind installers
-RUN apk add --no-cache build-base git curl
+RUN apk add --no-cache build-base git curl openssl-dev
 
 WORKDIR /app
 
