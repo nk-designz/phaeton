@@ -231,7 +231,7 @@ defmodule PhaetonWeb.ChartLive do
   defp build_state_chart(attr_name, timed) do
     segments =
       timed
-      |> Enum.map(fn inst -> %{x: inst["observedAt"], value: to_string(inst["value"])} end)
+      |> Enum.map(fn inst -> %{x: inst["observedAt"], value: stringify_state_value(inst["value"])} end)
 
     unique_values = segments |> Enum.map(& &1.value) |> Enum.uniq()
 
@@ -243,6 +243,18 @@ defmodule PhaetonWeb.ChartLive do
       count: length(segments)
     }
   end
+
+  defp stringify_state_value(val) when is_binary(val), do: val
+  defp stringify_state_value(val) when is_number(val), do: to_string(val)
+  defp stringify_state_value(true), do: "true"
+  defp stringify_state_value(false), do: "false"
+  defp stringify_state_value(nil), do: "null"
+
+  defp stringify_state_value(val) when is_map(val) or is_list(val) do
+    Jason.encode!(val)
+  end
+
+  defp stringify_state_value(val), do: inspect(val)
 
   defp parse_numeric(val) when is_number(val), do: val
 
