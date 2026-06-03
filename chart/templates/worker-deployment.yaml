@@ -32,6 +32,14 @@ spec:
           image: {{ include "phaeton.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RELEASE_DISTRIBUTION
+              value: "name"
+            - name: RELEASE_NODE
+              value: "phaeton@$(POD_IP)"
             - name: PHX_SERVER
               value: "false"
             - name: PHX_HOST

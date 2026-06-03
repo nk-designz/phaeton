@@ -38,6 +38,14 @@ spec:
               containerPort: 4000
               protocol: TCP
           env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RELEASE_DISTRIBUTION
+              value: "name"
+            - name: RELEASE_NODE
+              value: "phaeton@$(POD_IP)"
             - name: PHX_SERVER
               value: "true"
             - name: PHX_HOST
