@@ -66,7 +66,7 @@ defmodule PhaetonWeb.SubscriptionLive do
 
         <%!-- Subscription Cards --%>
         <div id="subscriptions-list" phx-update="stream" class="space-y-3">
-          <div class="hidden only:flex flex-col items-center py-12 opacity-40">
+          <div id="subscriptions-empty-state" class="hidden only:flex flex-col items-center py-12 opacity-40">
             <.icon name="hero-bell-slash" class="size-12 mb-3 opacity-30" />
             <p class="text-sm">No subscriptions yet</p>
             <p class="text-xs mt-1">Create subscriptions via the NGSI-LD API</p>
@@ -118,7 +118,7 @@ defmodule PhaetonWeb.SubscriptionLive do
                 <% end %>
               </div>
 
-              <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 <button
                   phx-click="delete"
                   phx-value-id={sub["id"]}

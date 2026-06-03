@@ -37,10 +37,12 @@ defmodule PhaetonWeb.ConnCase do
     # Direct inserts are used here to avoid nested transactions (Repo.transact inside
     # the sandbox's outer transaction causes "Database busy" on SQLite).
     tenant_name = "conn-case-#{System.unique_integer([:positive])}"
+
     {:ok, _} =
       %Phaeton.Accounts.Tenant{}
       |> Phaeton.Accounts.Tenant.changeset(%{name: tenant_name})
       |> Phaeton.Repo.insert()
+
     {:ok, _} =
       %Phaeton.Accounts.User{}
       |> Phaeton.Accounts.User.setup_changeset(%{
@@ -49,6 +51,7 @@ defmodule PhaetonWeb.ConnCase do
         tenant: tenant_name
       })
       |> Phaeton.Repo.insert()
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 

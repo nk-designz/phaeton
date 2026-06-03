@@ -332,22 +332,22 @@ defmodule Phaeton.NGSI.Temporal do
   defp maybe_filter_time(query, _timerel, nil, _), do: query
 
   defp maybe_filter_time(query, "after", time_at, _) do
-    case DateTime.from_iso8601(time_at) do
+    case parse_filter_datetime(time_at) do
       {:ok, dt, _} -> where(query, [t], t.observed_at > ^dt)
       _ -> query
     end
   end
 
   defp maybe_filter_time(query, "before", time_at, _) do
-    case DateTime.from_iso8601(time_at) do
+    case parse_filter_datetime(time_at) do
       {:ok, dt, _} -> where(query, [t], t.observed_at < ^dt)
       _ -> query
     end
   end
 
   defp maybe_filter_time(query, "between", time_at, end_time_at) do
-    with {:ok, start_dt, _} <- DateTime.from_iso8601(time_at),
-         {:ok, end_dt, _} <- DateTime.from_iso8601(end_time_at || time_at) do
+    with {:ok, start_dt, _} <- parse_filter_datetime(time_at),
+         {:ok, end_dt, _} <- parse_filter_datetime(end_time_at || time_at) do
       where(query, [t], t.observed_at >= ^start_dt and t.observed_at <= ^end_dt)
     else
       _ -> query
@@ -355,6 +355,23 @@ defmodule Phaeton.NGSI.Temporal do
   end
 
   defp maybe_filter_time(query, _, _, _), do: query
+
+  # Accept strict ISO8601 (with timezone) and HTML datetime-local values.
+  # datetime-local has no timezone, so we treat it as UTC for filtering.
+  defp parse_filter_datetime(value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, _dt, _offset} = ok ->
+        ok
+
+      _ ->
+        with {:ok, naive} <- NaiveDateTime.from_iso8601(value),
+             {:ok, dt} <- DateTime.from_naive(naive, "Etc/UTC") do
+          {:ok, dt, 0}
+        else
+          _ -> :error
+        end
+    end
+  end
 
   defp maybe_filter_entity_type(grouped, nil), do: grouped |> Map.to_list()
 

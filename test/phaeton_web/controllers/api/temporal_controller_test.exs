@@ -58,6 +58,17 @@ defmodule PhaetonWeb.API.TemporalControllerTest do
       body = json_response(conn, 200)
       assert is_list(body)
     end
+
+    test "queries with datetime-local format used by charts filter", %{conn: conn} do
+      id = unique_id("ttime_local")
+      entity = Map.put(@temporal_entity, "id", id)
+      post(conn, "/ngsi-ld/v1/temporal/entities", entity)
+
+      conn = get(conn, "/ngsi-ld/v1/temporal/entities?timerel=after&timeAt=2024-01-15T09:00")
+      body = json_response(conn, 200)
+
+      assert Enum.any?(body, fn e -> e["id"] == id end)
+    end
   end
 
   describe "GET /ngsi-ld/v1/temporal/entities/:entity_id" do

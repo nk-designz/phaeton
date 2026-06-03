@@ -63,11 +63,11 @@ Name of the secret holding SECRET_KEY_BASE.
 Key inside the secret for SECRET_KEY_BASE.
 */}}
 {{- define "phaeton.secretKey" -}}
-{{- if .Values.secret.existingSecret }}
-{{- .Values.secret.existingSecretKey }}
-{{- else }}
+{{- if .Values.secret.existingSecret -}}
+{{- .Values.secret.existingSecretKey -}}
+{{- else -}}
 secret-key-base
-{{- end }}
+{{- end -}}
 {{- end }}
 
 {{/*
@@ -76,4 +76,33 @@ Image reference.
 {{- define "phaeton.image" -}}
 {{- $tag := .Values.image.tag | default .Chart.AppVersion }}
 {{- printf "%s:%s" .Values.image.repository $tag }}
+{{- end }}
+
+{{/*
+Worker deployment name.
+*/}}
+{{- define "phaeton.workerFullname" -}}
+{{- printf "%s-worker" (include "phaeton.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Selector labels for worker pods.
+Use a distinct app name so worker pods do not match the main Service selector.
+*/}}
+{{- define "phaeton.workerSelectorLabels" -}}
+app.kubernetes.io/name: {{ printf "%s-worker" (include "phaeton.name" .) | trunc 63 | trimSuffix "-" }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels for worker resources.
+*/}}
+{{- define "phaeton.workerLabels" -}}
+helm.sh/chart: {{ include "phaeton.chart" . }}
+{{ include "phaeton.workerSelectorLabels" . }}
+app.kubernetes.io/component: worker
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}

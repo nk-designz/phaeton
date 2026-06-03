@@ -1,0 +1,83 @@
+{{- if .Values.workers.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "phaeton.workerFullname" . }}
+  labels:
+    {{- include "phaeton.workerLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.workers.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "phaeton.workerSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.workers.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "phaeton.workerLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: phaeton-worker
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "phaeton.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PHX_SERVER
+              value: "false"
+            - name: PHX_HOST
+              value: {{ .Values.env.phxHost | quote }}
+            - name: PORT
+              value: "4000"
+            - name: POOL_SIZE
+              value: {{ .Values.env.poolSize | quote }}
+            - name: DATABASE_PATH
+              value: {{ .Values.persistence.mountPath }}/phaeton.db
+            {{- $workerDns := .Values.workers.dnsClusterQuery | default .Values.env.dnsClusterQuery }}
+            {{- if $workerDns }}
+            - name: DNS_CLUSTER_QUERY
+              value: {{ $workerDns | quote }}
+            {{- end }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "phaeton.secretName" . }}
+                  key: {{ include "phaeton.secretKey" . }}
+            {{- with .Values.workers.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.workers.resources | nindent 12 }}
+          {{- if and .Values.persistence.enabled .Values.workers.mountPersistence }}
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+          {{- end }}
+      {{- if and .Values.persistence.enabled .Values.workers.mountPersistence }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (printf "%s-data" (include "phaeton.fullname" .)) }}
+      {{- end }}
+      {{- with .Values.workers.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.workers.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.workers.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

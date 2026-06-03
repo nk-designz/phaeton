@@ -21,7 +21,11 @@ defmodule PhaetonWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div id="app-drawer" class="drawer lg:drawer-open min-h-screen nb-page-bg" phx-hook=".SidebarToggle">
+    <div
+      id="app-drawer"
+      class="drawer lg:drawer-open min-h-screen nb-page-bg"
+      phx-hook=".SidebarToggle"
+    >
       <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content flex flex-col">
         <%!-- Topbar (frosted glass) --%>
@@ -199,7 +203,10 @@ defmodule PhaetonWeb.Layouts do
                   </.link>
                 </li>
                 <li>
-                  <.link navigate="/admin/settings" class={[@active_tab == :admin_settings && "active"]}>
+                  <.link
+                    navigate="/admin/settings"
+                    class={[@active_tab == :admin_settings && "active"]}
+                  >
                     <.icon name="hero-cog-6-tooth" class="size-[18px]" />
                     <span>Settings</span>
                   </.link>

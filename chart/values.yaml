@@ -106,3 +106,36 @@ securityContext:
   runAsUser: 1000
   runAsNonRoot: true
   readOnlyRootFilesystem: false
+
+# Optional headless BEAM workers (no HTTP server exposed).
+workers:
+  enabled: false
+  replicaCount: 1
+
+  # Override DNS cluster query for workers.
+  # If empty, workers reuse env.dnsClusterQuery.
+  dnsClusterQuery: ""
+
+  # Additional worker-specific environment variables.
+  # Example:
+  # extraEnv:
+  #   - name: RELEASE_DISTRIBUTION
+  #     value: name
+  extraEnv: []
+
+  # Mount the same persistence volume in worker pods.
+  # Keep false by default to avoid SQLite writer contention.
+  mountPersistence: false
+
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

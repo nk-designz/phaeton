@@ -56,7 +56,10 @@ defmodule PhaetonWeb.Admin.SettingsLive do
         {:noreply,
          socket
          |> assign(:registration_enabled, new_value)
-         |> put_flash(:info, if(new_value, do: "Registration enabled.", else: "Registration disabled."))}
+         |> put_flash(
+           :info,
+           if(new_value, do: "Registration enabled.", else: "Registration disabled.")
+         )}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to update setting.")}

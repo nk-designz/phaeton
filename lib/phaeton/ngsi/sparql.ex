@@ -167,6 +167,8 @@ defmodule Phaeton.NGSI.Sparql do
           ?source rdf:type ?sourceType .
           ?target rdf:type ?targetType .
           ?source ?rel ?target .
+          FILTER(isIRI(?source))
+          FILTER(isIRI(?target))
           FILTER(isIRI(?rel))
           FILTER(?rel != rdf:type)
         }
